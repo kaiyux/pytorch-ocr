@@ -1,6 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseModel
+import torchvision.models as models
+from .attention import TransformerModel
 
 
 class MnistModel(BaseModel):
@@ -20,3 +22,15 @@ class MnistModel(BaseModel):
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
+
+
+class RecognizeModel(BaseModel):
+    def __init__(self, num_chars):
+        super().__init__()
+        self.resnet50 = models.resnet50(pretrained=False, progress=True)
+        self.transformer = TransformerModel(num_chars, nhead=16, num_encoder_layers=12)
+
+    def forward(self, img, transcription):
+        features = self.resnet50(img)
+        outs = self.transformer(features, transcription)
+        return outs
