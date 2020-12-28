@@ -4,7 +4,8 @@
   "arch": {
     "type": "RecognizeModel",
     "args": {
-      "num_chars": 97
+      "num_chars": 97,
+      "d_model": 512
     }
   },
   "data_loader": {
@@ -16,8 +17,8 @@
       "version": "2015",
       "batch_size": 8,
       "reshape_size": [
-        256,
-        48
+        224,
+        64
       ],
       "shuffle": true,
       "validation_split": 0.1,
