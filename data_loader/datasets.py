@@ -15,7 +15,7 @@ class ICDARDataset(Dataset):
 
         self.labels = {}
         if version == '2015':
-            with open(gt_path, 'r', encoding='utf-8')as f:
+            with open(gt_path, 'r', encoding='utf-8-sig')as f:
                 for line in f:
                     line = line.strip()
                     items = line.split(', ')
@@ -39,8 +39,8 @@ class ICDARDataset(Dataset):
         self.tgt_height = reshape_size[1]
 
     def __getitem__(self, index):
-        label = list(self.labels.values())[index - 1]
-        image_name = list(self.labels.keys())[index - 1]
+        label = list(self.labels.values())[index]
+        image_name = list(self.labels.keys())[index]
 
         # process image
         image_path = os.path.join(self.image_dir, image_name)
