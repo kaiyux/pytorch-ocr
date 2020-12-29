@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 from base import BaseModel
 from .attention import TransformerModel
 from .backbone import ShuffleNetV2
@@ -9,7 +8,6 @@ class RecognizeModel(BaseModel):
     def __init__(self, num_chars, d_model):
         super().__init__()
         self.backbone = ShuffleNetV2()
-        self.embedding = nn.Embedding(num_embeddings=num_chars, embedding_dim=d_model)
         self.transformer = TransformerModel(num_chars, d_model=d_model, nhead=16, num_encoder_layers=12)
 
     def forward(self, img, transcription):
@@ -18,9 +16,6 @@ class RecognizeModel(BaseModel):
         features = features.permute(0, 1, 3, 2)
         features = features.reshape(torch.Size([N, C, H * W]))  # (N, E, S)
         features = features.permute(2, 0, 1)  # (N, E, S) -> (S, N, E)
-
-        transcription = self.embedding(transcription.long())  # (N, T) -> (N, T, E)
-        transcription = transcription.permute(1, 0, 2)  # (N, T, E) -> (T, N, E)
 
         outs = self.transformer(features, transcription)
         return outs
