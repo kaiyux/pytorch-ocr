@@ -20,11 +20,12 @@ class TransformerModel(BaseModel):
                                           dropout=dropout, activation=activation, custom_encoder=custom_encoder,
                                           custom_decoder=custom_decoder)
         self.linear = nn.Linear(in_features=d_model, out_features=num_chars)
-        self.softmax = nn.Softmax()
+        self.log_softmax = nn.LogSoftmax(dim=2)
 
     def forward(self, src, tgt):
         out = self.transformer(src, tgt)  # (T, N, E)
         out = out.permute(1, 0, 2)  # (T, N, E) -> (N, T, E)
         out = self.linear(out)
-        out = self.softmax(out)
+        out = self.log_softmax(out)
+        out = out.permute(0, 2, 1)  # (N, T, C) -> (N, C, T)
         return out

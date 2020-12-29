@@ -15,14 +15,14 @@
       "gt_path": "/home/xiekaiyu/ocr/dataset/ICDAR2015WordRecognition/ch4_training_word_images_gt/gt.txt",
       "label_dict": "/home/xiekaiyu/workspace/pytorch-ocr/label_dicts/label_dict_en.txt",
       "version": "2015",
-      "batch_size": 8,
+      "batch_size": 32,
       "reshape_size": [
         224,
         64
       ],
       "shuffle": true,
       "validation_split": 0.1,
-      "num_workers": 2
+      "num_workers": 4
     }
   },
   "optimizer": {
@@ -46,12 +46,12 @@
     }
   },
   "trainer": {
-    "epochs": 100,
+    "epochs": 10,
     "save_dir": "recog_model/",
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 10,
+    "early_stop": 1,
     "tensorboard": false
   }
 }
