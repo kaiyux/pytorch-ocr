@@ -28,18 +28,32 @@ class TransformerModel(BaseModel):
 
     def forward(self, src, tgt):
         # Embedding
-        tgt = self.embedding(tgt.long())  # (N, T) -> (N, T, E)
-        tgt = tgt.permute(1, 0, 2)  # (N, T, E) -> (T, N, E)
+        embeded_tgt = self.embedding(tgt.long())  # (N, T) -> (N, T, E)
+        embeded_tgt = embeded_tgt.permute(1, 0, 2)  # (N, T, E) -> (T, N, E)
 
         # Positional Encoding
-        pe = positional_encoding(self.d_model, tgt.shape[0])  # (T, E)
-        pe = pe.repeat(tgt.shape[1], 1, 1)  # (T, E) -> (N, T, E)
+        pe = positional_encoding(self.d_model, embeded_tgt.shape[0])  # (T, E)
+        pe = pe.repeat(embeded_tgt.shape[1], 1, 1)  # (T, E) -> (N, T, E)
         pe = pe.permute(1, 0, 2)  # (N, T, E) -> (T, N, E)
-        pe = pe.to(tgt.device)
-        tgt += pe
+        pe = pe.to(embeded_tgt.device)
+        embeded_tgt += pe
 
-        # TODO:mask
-        out = self.transformer(src, tgt)  # (T, N, E)
+        s = src.shape[0]
+        t = embeded_tgt.shape[0]
+        n = src.shape[1]
+
+        src_mask = torch.full((s, s), float('-inf')).triu(diagonal=1).to(tgt.device)
+        tgt_mask = torch.full((t, t), float('-inf')).triu(diagonal=1).to(tgt.device)
+
+        src_key_padding_mask = torch.full((n, s), False).bool().to(tgt.device)  # we don't mask anything for now
+        tgt_key_padding_mask = tgt == 0  # 0 represents EOS in label_dict
+
+        memory_mask = None
+        memory_key_padding_mask = None
+
+        out = self.transformer(src, embeded_tgt,
+                               src_mask, tgt_mask, memory_mask,
+                               src_key_padding_mask, tgt_key_padding_mask, memory_key_padding_mask)  # (T, N, E)
         out = out.permute(1, 0, 2)  # (T, N, E) -> (N, T, E)
         out = self.linear(out)
         out = self.log_softmax(out)
