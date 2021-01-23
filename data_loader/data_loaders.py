@@ -5,14 +5,14 @@ from base import BaseDataLoader
 from .datasets import *
 
 
-class ICDARDataLoader(BaseDataLoader):
+class OCRDataLoader(BaseDataLoader):
     def __init__(self, image_dir, gt_path, label_dict, version, batch_size, reshape_size,
                  shuffle=True, validation_split=0.0, num_workers=1):
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))
         ])
-        self.dataset = ICDARDataset(image_dir, gt_path, label_dict, reshape_size, version, transform)
+        self.dataset = OCRDataset(image_dir, gt_path, label_dict, reshape_size, version, transform)
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers,
                          collate_fn=icdar_collate_fn)
 

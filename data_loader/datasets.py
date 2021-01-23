@@ -2,9 +2,10 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 import os
 from PIL import Image
+from tqdm import tqdm
 
 
-class ICDARDataset(Dataset):
+class OCRDataset(Dataset):
     def __init__(self, image_dir, gt_path, label_dict, reshape_size, version='2015', transform=None):
         assert os.path.isdir(image_dir), f'dir \'{image_dir}\' not found!'
         self.image_dir = image_dir
@@ -21,6 +22,26 @@ class ICDARDataset(Dataset):
                     items = line.split(', ')
                     image_name = items[0]
                     transcript = items[1][1:-1]
+
+                    encoded_trans = []
+                    for ch in transcript:
+                        if ch == ' ':
+                            encoded_trans.append(ch2ind['SPACE'])
+                        elif ch not in ch2ind.keys():
+                            encoded_trans.append(ch2ind['UNK'])
+                        else:
+                            encoded_trans.append(ch2ind[ch])
+                    encoded_trans.append(ch2ind['EOS'])
+
+                    self.labels[image_name] = encoded_trans
+
+        elif version == 'Synth90k':
+            with open(gt_path, 'r')as f:
+                print('Loading label file...')
+                for line in tqdm(f):
+                    line = line.strip()
+                    image_name = line.split(' ')[0]
+                    transcript = image_name.split('_')[1]
 
                     encoded_trans = []
                     for ch in transcript:

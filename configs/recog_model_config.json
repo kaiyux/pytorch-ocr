@@ -9,13 +9,13 @@
     }
   },
   "data_loader": {
-    "type": "ICDARDataLoader",
+    "type": "OCRDataLoader",
     "args": {
-      "image_dir": "/home/xiekaiyu/ocr/dataset/ICDAR2015WordRecognition/ch4_training_word_images_gt",
-      "gt_path": "/home/xiekaiyu/ocr/dataset/ICDAR2015WordRecognition/ch4_training_word_images_gt/gt.txt",
-      "label_dict": "/home/xiekaiyu/workspace/pytorch-ocr/label_dicts/label_dict_en.txt",
-      "version": "2015",
-      "batch_size": 32,
+      "image_dir": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px",
+      "gt_path": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train.txt",
+      "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
+      "version": "Synth90k",
+      "batch_size": 128,
       "reshape_size": [
         224,
         64
