@@ -1,8 +1,10 @@
 from torch.utils.data import Dataset
 from torchvision import transforms
 import os
-from PIL import Image
+from PIL import Image, ImageFile
 from tqdm import tqdm
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class OCRDataset(Dataset):
