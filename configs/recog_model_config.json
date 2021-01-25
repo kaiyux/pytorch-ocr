@@ -12,10 +12,10 @@
     "type": "OCRDataLoader",
     "args": {
       "image_dir": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px",
-      "gt_path": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train.txt",
+      "gt_path": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt",
       "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
       "version": "Synth90k",
-      "batch_size": 128,
+      "batch_size": 256,
       "reshape_size": [
         224,
         64
@@ -28,7 +28,7 @@
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 0.001,
+      "lr": 0.01,
       "weight_decay": 0,
       "amsgrad": true
     }
