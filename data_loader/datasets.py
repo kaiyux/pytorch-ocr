@@ -68,6 +68,7 @@ class OCRDataset(Dataset):
         # process image
         image_path = os.path.join(self.image_dir, image_name)
         img = Image.open(image_path)
+        img = img.convert("RGB")
         width, height = img.size
         if width < self.tgt_width:
             reshape_width = self.tgt_height * (width / height)

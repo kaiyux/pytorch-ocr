@@ -28,7 +28,7 @@ class TransformerModel(BaseModel):
 
     def forward(self, src, tgt):
         # Embedding
-        embeded_tgt = self.embedding(tgt.long())  # (N, T) -> (N, T, E)
+        embeded_tgt = self.embedding(tgt.long()) * math.sqrt(self.d_model)  # (N, T) -> (N, T, E)
         embeded_tgt = embeded_tgt.permute(1, 0, 2)  # (N, T, E) -> (T, N, E)
 
         # Positional Encoding
@@ -46,7 +46,7 @@ class TransformerModel(BaseModel):
         tgt_mask = torch.full((t, t), float('-inf')).triu(diagonal=1).to(tgt.device)
 
         src_key_padding_mask = torch.full((n, s), False).bool().to(tgt.device)  # we don't mask anything for now
-        tgt_key_padding_mask = tgt == 0  # 0 represents EOS in label_dict
+        tgt_key_padding_mask = tgt == 0  # 0 represents UNK in label_dict
 
         memory_mask = None
         memory_key_padding_mask = None
@@ -67,13 +67,13 @@ class TransformerDecoderModel(BaseModel):
         self.d_model = d_model
         self.embedding = nn.Embedding(num_embeddings=num_chars, embedding_dim=d_model)
         decoder_layer = nn.TransformerDecoderLayer(d_model, nhead)
-        self.transformer_decoder = torch.nn.TransformerDecoder(decoder_layer, num_layers, norm=norm)
+        self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers, norm=norm)
         self.linear = nn.Linear(in_features=d_model, out_features=num_chars)
         self.log_softmax = nn.LogSoftmax(dim=2)
 
     def forward(self, src, tgt):
         # Embedding
-        embeded_tgt = self.embedding(tgt.long())  # (N, T) -> (N, T, E)
+        embeded_tgt = self.embedding(tgt.long()) * math.sqrt(self.d_model)  # (N, T) -> (N, T, E)
         embeded_tgt = embeded_tgt.permute(1, 0, 2)  # (N, T, E) -> (T, N, E)
 
         # Positional Encoding
@@ -83,18 +83,19 @@ class TransformerDecoderModel(BaseModel):
         pe = pe.to(embeded_tgt.device)
         embeded_tgt += pe
 
-        s = src.shape[0]
         t = embeded_tgt.shape[0]
-        n = src.shape[1]
-
         tgt_mask = torch.full((t, t), float('-inf')).triu(diagonal=1).to(tgt.device)
+        tgt_key_padding_mask = tgt == 0  # 0 represents UNK in label_dict
 
-        src_key_padding_mask = torch.full((n, s), False).bool().to(tgt.device)  # we don't mask anything for now
-        tgt_key_padding_mask = tgt == 0  # 0 represents EOS in label_dict
+        if self.training:
+            out = self.transformer_decoder(embeded_tgt, src,
+                                           tgt_mask, None,
+                                           tgt_key_padding_mask, None)  # (T, N, E)
+        else:
+            out = self.transformer_decoder(embeded_tgt, src,
+                                           None, None,
+                                           tgt_key_padding_mask, None)  # (T, N, E)
 
-        out = self.transformer_decoder(embeded_tgt, src,
-                                       tgt_mask, None,
-                                       tgt_key_padding_mask, src_key_padding_mask)  # (T, N, E)
         out = out.permute(1, 0, 2)  # (T, N, E) -> (N, T, E)
         out = self.linear(out)
         out = self.log_softmax(out)
