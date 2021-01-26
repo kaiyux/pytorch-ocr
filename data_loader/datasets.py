@@ -25,7 +25,7 @@ class OCRDataset(Dataset):
                     image_name = items[0]
                     transcript = items[1][1:-1]
 
-                    encoded_trans = []
+                    encoded_trans = [ch2ind['SOS']]
                     for ch in transcript:
                         if ch == ' ':
                             encoded_trans.append(ch2ind['SPACE'])
@@ -45,7 +45,7 @@ class OCRDataset(Dataset):
                     image_name = line.split(' ')[0]
                     transcript = image_name.split('_')[1]
 
-                    encoded_trans = []
+                    encoded_trans = [ch2ind['SOS']]
                     for ch in transcript:
                         if ch == ' ':
                             encoded_trans.append(ch2ind['SPACE'])
@@ -74,8 +74,11 @@ class OCRDataset(Dataset):
             img = img.resize([int(reshape_width), int(self.tgt_height)])
             # padding
             pad_width = self.tgt_width - img.size[0]
-            pad = transforms.Compose([transforms.Pad(padding=(0, 0, pad_width, 0))])
-            img = pad(img)
+            if pad_width < 0:
+                img = img.resize([int(self.tgt_width), int(self.tgt_height)])
+            else:
+                pad = transforms.Compose([transforms.Pad(padding=(0, 0, pad_width, 0))])
+                img = pad(img)
         else:
             img = img.resize([int(self.tgt_width), int(self.tgt_height)])
         if self.transform is not None:

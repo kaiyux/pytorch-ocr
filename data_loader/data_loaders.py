@@ -23,6 +23,6 @@ def icdar_collate_fn(batch):
         max_len = max(max_len, len(p[1]))
     for i in range(len(batch)):
         while len(batch[i][1]) < max_len:
-            batch[i][1].append(0)
+            batch[i][1].append(0)  # padding
         batch[i] = (batch[i][0], torch.LongTensor(batch[i][1]))
     return default_collate(batch)
