@@ -61,6 +61,29 @@ class TransformerModel(BaseModel):
         return out
 
 
+class TransformerEncoderModel(BaseModel):
+    def __init__(self, num_chars, d_model=512, nhead=8, num_layers=6):
+        super().__init__()
+        self.d_model = d_model
+        encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.linear = nn.Linear(in_features=d_model, out_features=num_chars)
+        self.log_softmax = nn.LogSoftmax(dim=2)
+
+    def forward(self, src):
+        # Positional Encoding
+        pe = positional_encoding(self.d_model, src.shape[0])  # (S, E)
+        pe = pe.repeat(src.shape[1], 1, 1)  # (S, E) -> (N, S, E)
+        pe = pe.permute(1, 0, 2)  # (N, S, E) -> (S, N, E)
+        pe = pe.to(src.device)
+        src += pe
+
+        out = self.transformer_encoder(src)
+        out = self.linear(out)  # (S, N, E) -> (S, N, C)
+        out = self.log_softmax(out)
+        return out
+
+
 class TransformerDecoderModel(BaseModel):
     def __init__(self, num_chars, d_model=512, nhead=8, num_layers=6, norm=None):
         super().__init__()

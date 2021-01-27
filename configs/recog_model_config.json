@@ -4,18 +4,18 @@
   "arch": {
     "type": "RecognizeModel",
     "args": {
-      "num_chars": 97,
+      "num_chars": 99,
       "d_model": 512
     }
   },
   "data_loader": {
     "type": "OCRDataLoader",
     "args": {
-      "image_dir": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px",
-      "gt_path": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt",
+      "image_dir": "/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/fake",
+      "gt_path": "/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/fake/gt.txt",
       "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
-      "version": "Synth90k",
-      "batch_size": 256,
+      "version": "2015",
+      "batch_size": 64,
       "reshape_size": [
         224,
         64
@@ -26,18 +26,14 @@
     }
   },
   "optimizer": {
-    "type": "Adam",
+    "type": "SGD",
     "args": {
       "lr": 0.01,
-      "weight_decay": 0,
-      "amsgrad": true
+      "weight_decay": 0
     }
   },
-  "loss": "nll_loss",
-  "metrics": [
-    "accuracy",
-    "top_k_acc"
-  ],
+  "loss": "ctc_loss",
+  "metrics": [],
   "lr_scheduler": {
     "type": "StepLR",
     "args": {
@@ -46,12 +42,12 @@
     }
   },
   "trainer": {
-    "epochs": 10,
+    "epochs": 100,
     "save_dir": "recog_model/",
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 2,
+    "early_stop": 100,
     "tensorboard": false
   }
 }

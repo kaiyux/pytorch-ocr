@@ -139,10 +139,11 @@ class BaseTrainer:
         filename = str(self.checkpoint_dir / 'checkpoint-epoch{}.pth'.format(epoch))
         torch.save(state, filename)
         self.logger.info("Saving checkpoint: {} ...".format(filename))
-        if save_best:
-            best_path = str(self.checkpoint_dir / 'model_best.pth')
-            torch.save(state, best_path)
-            self.logger.info("Saving current best: model_best.pth ...")
+        # TODO: maybe useful in the future
+        # if save_best:
+        #     best_path = str(self.checkpoint_dir / 'model_best.pth')
+        #     torch.save(state, best_path)
+        #     self.logger.info("Saving current best: model_best.pth ...")
 
     def _resume_checkpoint(self, resume_path):
         """

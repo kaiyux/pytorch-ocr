@@ -43,8 +43,19 @@ class Trainer(BaseTrainer):
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
-            output = self.model(data, target)
-            loss = self.criterion(output, target)
+            output = self.model(data)
+
+            # loss = self.criterion(output[:, :, :-1], target[:, 1:])
+            input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long)
+            targets = target.cpu().numpy().tolist()
+            target_lengths = []
+            for seq in targets:
+                for i, ch in enumerate(seq):
+                    if ch == 2:  # EOS
+                        target_lengths.append(i + 1)
+                        break
+            target_lengths = torch.LongTensor(target_lengths)
+            loss = self.criterion(output, target, input_lengths, target_lengths, blank=98, zero_infinity=True)
             loss.backward()
             self.optimizer.step()
 
@@ -85,8 +96,19 @@ class Trainer(BaseTrainer):
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
-                output = self.model(data, target)
-                loss = self.criterion(output, target)
+                output = self.model(data)
+
+                # loss = self.criterion(output[:, :, :-1], target[:, 1:])
+                input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long)
+                targets = target.cpu().numpy().tolist()
+                target_lengths = []
+                for seq in targets:
+                    for i, ch in enumerate(seq):
+                        if ch == 2:  # EOS
+                            target_lengths.append(i + 1)
+                            break
+                target_lengths = torch.LongTensor(target_lengths)
+                loss = self.criterion(output, target, input_lengths, target_lengths, blank=98, zero_infinity=True)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.valid_metrics.update('loss', loss.item())
