@@ -9,7 +9,7 @@ from data_loader.datasets import get_label_dict
 
 def main():
     image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/fake/word_1.png'
-    resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/0127_161757/checkpoint-epoch100.pth'
+    resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/0127_213944/checkpoint-epoch100.pth'
     label_dict = '/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt'
     logger = config.get_logger('inference')
 
@@ -30,23 +30,11 @@ def main():
     model.eval()
 
     img = Image.open(image_path).convert("RGB")
-    tgt_width = 224
     tgt_height = 64
 
-    # width, height = img.size
-    # if width < tgt_width:
-    #     reshape_width = tgt_height * (width / height)
-    #     img = img.resize([int(reshape_width), int(tgt_height)])
-    #     # padding
-    #     pad_width = tgt_width - img.size[0]
-    #     if pad_width < 0:
-    #         img = img.resize([int(tgt_width), int(tgt_height)])
-    #     else:
-    #         pad = transforms.Compose([transforms.Pad(padding=(0, 0, pad_width, 0))])
-    #         img = pad(img)
-    # else:
-    #     img = img.resize([int(tgt_width), int(tgt_height)])
-    img = img.resize([int(tgt_width), int(tgt_height)])
+    width, height = img.size
+    reshape_width = tgt_height * (width / height)
+    img = img.resize([int(reshape_width), int(tgt_height)])
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))

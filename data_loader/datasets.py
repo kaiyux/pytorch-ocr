@@ -1,5 +1,4 @@
 from torch.utils.data import Dataset
-from torchvision import transforms
 import os
 from PIL import Image, ImageFile
 from tqdm import tqdm
@@ -73,20 +72,9 @@ class OCRDataset(Dataset):
         image_path = os.path.join(self.image_dir, image_name)
         img = Image.open(image_path)
         img = img.convert("RGB")
-        # width, height = img.size
-        # if width < self.tgt_width:
-        #     reshape_width = self.tgt_height * (width / height)
-        #     img = img.resize([int(reshape_width), int(self.tgt_height)])
-        #     # padding
-        #     pad_width = self.tgt_width - img.size[0]
-        #     if pad_width < 0:
-        #         img = img.resize([int(self.tgt_width), int(self.tgt_height)])
-        #     else:
-        #         pad = transforms.Compose([transforms.Pad(padding=(0, 0, pad_width, 0))])
-        #         img = pad(img)
-        # else:
-        #     img = img.resize([int(self.tgt_width), int(self.tgt_height)])
-        img = img.resize([int(self.tgt_width), int(self.tgt_height)])
+        width, height = img.size
+        reshape_width = self.tgt_height * (width / height)
+        img = img.resize([int(reshape_width), int(self.tgt_height)])
         if self.transform is not None:
             img = self.transform(img)
 
