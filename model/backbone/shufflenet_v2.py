@@ -146,10 +146,14 @@ class ShuffleNetV2(nn.Module):
 
         # building last several layers
         self.conv_last = conv_1x1_bn(input_channel, self.stage_out_channels[-1])
-        self.globalpool = nn.Sequential(nn.AvgPool2d(int(input_size / 32)))
+        # self.globalpool = nn.Sequential(nn.AvgPool2d(int(input_size / 32)))
+        #
+        # # building classifier
+        # self.classifier = nn.Sequential(nn.Linear(self.stage_out_channels[-1], n_class))
 
-        # building classifier
-        self.classifier = nn.Sequential(nn.Linear(self.stage_out_channels[-1], n_class))
+        for p in self.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
 
     def forward(self, x):
         x = self.conv1(x)

@@ -40,22 +40,26 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
-            data, target = data.to(self.device), target.to(self.device)
+            data = data.to(self.device)
 
             self.optimizer.zero_grad()
             output = self.model(data)
 
             # loss = self.criterion(output[:, :, :-1], target[:, 1:])
-            input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long)
+            input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
             targets = target.cpu().numpy().tolist()
+            target = []
             target_lengths = []
             for seq in targets:
                 for i, ch in enumerate(seq):
                     if ch == 2:  # EOS
-                        target_lengths.append(i + 1)
+                        target_lengths.append(i)
                         break
-            target_lengths = torch.LongTensor(target_lengths)
-            loss = self.criterion(output, target, input_lengths, target_lengths, blank=98, zero_infinity=True)
+                    target.append(ch)
+            target = torch.LongTensor(target).to(self.device)
+            target_lengths = torch.LongTensor(target_lengths).to(self.device)
+            loss = self.criterion(output, target, input_lengths, target_lengths,
+                                  blank=98, reduction='mean', zero_infinity=True)
             loss.backward()
             self.optimizer.step()
 

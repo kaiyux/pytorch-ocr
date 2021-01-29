@@ -5,12 +5,15 @@ from .backbone import ShuffleNetV2
 
 
 class RecognizeModel(BaseModel):
-    def __init__(self, num_chars, d_model):
+    def __init__(self, num_chars, d_model, nhead, num_layers):
         super().__init__()
         self.backbone = ShuffleNetV2()
         # self.transformer = TransformerModel(num_chars, d_model=d_model, nhead=16, num_encoder_layers=12)
         # self.transformer_decoder = TransformerDecoderModel(num_chars, d_model=d_model, nhead=16, num_layers=12)
-        self.transformer_encoder = TransformerEncoderModel(num_chars, d_model=d_model, nhead=8, num_layers=6)
+        self.transformer_encoder = TransformerEncoderModel(num_chars, d_model, nhead, num_layers)
+        for p in self.parameters():
+            if p.dim() > 1:
+                torch.nn.init.xavier_uniform_(p)
 
     def forward(self, img, transcription=None):
         features = self.backbone(img)
