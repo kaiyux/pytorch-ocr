@@ -1,13 +1,13 @@
 import torch
 from base import BaseModel
 from .attention import TransformerModel, TransformerEncoderModel, TransformerDecoderModel
-from .backbone import ShuffleNetV2
+from .backbone import ShuffleNetV2, TinyNet
 
 
 class RecognizeModel(BaseModel):
     def __init__(self, num_chars, d_model, nhead, num_layers):
         super().__init__()
-        self.backbone = ShuffleNetV2()
+        self.backbone = TinyNet()
         # self.transformer = TransformerModel(num_chars, d_model=d_model, nhead=16, num_encoder_layers=12)
         # self.transformer_decoder = TransformerDecoderModel(num_chars, d_model=d_model, nhead=16, num_layers=12)
         self.transformer_encoder = TransformerEncoderModel(num_chars, d_model, nhead, num_layers)

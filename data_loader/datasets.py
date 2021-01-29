@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import Dataset
 import os
 from PIL import Image, ImageFile
@@ -78,7 +79,7 @@ class OCRDataset(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, label
+        return img, label, torch.LongTensor([reshape_width])
 
     def __len__(self):
         return len(self.labels)
