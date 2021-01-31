@@ -45,23 +45,25 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             output = self.model(data)
 
-            input_lengths = (widths.squeeze(1) / 16 + 1).to(self.device)
-            max_len = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
-            input_lengths = torch.where(input_lengths > output.shape[0], max_len, input_lengths)
+            # input_lengths = (widths.squeeze(1) / 16 + 1).to(self.device)
+            # max_len = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
+            # input_lengths = torch.where(input_lengths > output.shape[0], max_len, input_lengths)
+            input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
             targets = target.cpu().numpy().tolist()
             target = []
             target_lengths = []
             for seq in targets:
                 for i, ch in enumerate(seq):
-                    if ch == 2:  # EOS
-                        target_lengths.append(i)
-                        break
                     target.append(ch)
+                    if ch == 2:  # EOS
+                        target_lengths.append(i + 1)
+                        break
             target = torch.LongTensor(target).to(self.device)
             target_lengths = torch.LongTensor(target_lengths).to(self.device)
             loss = self.criterion(output, target, input_lengths, target_lengths,
                                   blank=98, reduction='mean', zero_infinity=True)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=20, norm_type=2)
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
@@ -70,10 +72,11 @@ class Trainer(BaseTrainer):
                 self.train_metrics.update(met.__name__, met(output, target))
 
             if batch_idx % self.log_step == 0:
-                self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
+                self.logger.debug('Train Epoch: {} {} Loss: {:.6f} LR:{}'.format(
                     epoch,
                     self._progress(batch_idx),
-                    loss.item()))
+                    loss.item(),
+                    self.optimizer.state_dict()['param_groups'][0]['lr']))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
             if batch_idx == self.len_epoch:
@@ -104,9 +107,10 @@ class Trainer(BaseTrainer):
                 self.optimizer.zero_grad()
                 output = self.model(data)
 
-                input_lengths = (widths.squeeze(1) / 16 + 1).to(self.device)
-                max_len = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
-                input_lengths = torch.where(input_lengths > output.shape[0], max_len, input_lengths)
+                # input_lengths = (widths.squeeze(1) / 16 + 1).to(self.device)
+                # max_len = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
+                # input_lengths = torch.where(input_lengths > output.shape[0], max_len, input_lengths)
+                input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
                 targets = target.cpu().numpy().tolist()
                 target = []
                 target_lengths = []

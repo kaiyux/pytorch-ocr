@@ -12,6 +12,7 @@ class BaseTrainer:
     def __init__(self, model, criterion, metric_ftns, optimizer, config):
         self.config = config
         self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
+        self.logger.info('Log will be saved at {}'.format(config.log_dir))
 
         # setup GPU device if available, move model into configured device
         self.device, device_ids = self._prepare_device(config['n_gpu'])
@@ -63,6 +64,9 @@ class BaseTrainer:
         Full training logic
         """
         not_improved_count = 0
+        for p in self.model.parameters():
+            if p.dim() > 1:
+                torch.nn.init.xavier_uniform_(p)
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
 

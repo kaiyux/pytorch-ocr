@@ -8,8 +8,8 @@ from data_loader.datasets import get_label_dict
 
 
 def main():
-    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/fake/word_1.png'
-    resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/0127_213944/checkpoint-epoch100.pth'
+    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT/word_2.png'
+    resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/0131_161714/checkpoint-epoch100.pth'
     label_dict = '/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt'
     logger = config.get_logger('inference')
 
@@ -37,7 +37,7 @@ def main():
     img = img.resize([int(reshape_width), int(tgt_height)])
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
     ])
     img = transform(img).unsqueeze(0).to(device)
     output = model(img)

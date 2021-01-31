@@ -151,10 +151,6 @@ class ShuffleNetV2(nn.Module):
         # # building classifier
         # self.classifier = nn.Sequential(nn.Linear(self.stage_out_channels[-1], n_class))
 
-        for p in self.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
-
     def forward(self, x):
         x = self.conv1(x)
         x = self.maxpool(x)

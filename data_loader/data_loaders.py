@@ -10,7 +10,7 @@ class OCRDataLoader(BaseDataLoader):
                  shuffle=True, validation_split=0.0, num_workers=1):
         transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
         ])
         self.dataset = OCRDataset(image_dir, gt_path, label_dict, reshape_size, version, transform)
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers,

@@ -1,19 +1,18 @@
 import torch
 from base import BaseModel
 from .attention import TransformerModel, TransformerEncoderModel, TransformerDecoderModel
+from .lstm import LSTMModel
 from .backbone import ShuffleNetV2, TinyNet
 
 
 class RecognizeModel(BaseModel):
     def __init__(self, num_chars, d_model, nhead, num_layers):
         super().__init__()
-        self.backbone = TinyNet()
+        self.backbone = ShuffleNetV2()
         # self.transformer = TransformerModel(num_chars, d_model=d_model, nhead=16, num_encoder_layers=12)
         # self.transformer_decoder = TransformerDecoderModel(num_chars, d_model=d_model, nhead=16, num_layers=12)
-        self.transformer_encoder = TransformerEncoderModel(num_chars, d_model, nhead, num_layers)
-        for p in self.parameters():
-            if p.dim() > 1:
-                torch.nn.init.xavier_uniform_(p)
+        # self.transformer_encoder = TransformerEncoderModel(num_chars, d_model, nhead, num_layers)
+        self.lstm = LSTMModel(d_model, num_chars)
 
     def forward(self, img, transcription=None):
         features = self.backbone(img)
@@ -24,5 +23,6 @@ class RecognizeModel(BaseModel):
 
         # outs = self.transformer(features, transcription)
         # outs = self.transformer_decoder(features, transcription)
-        outs = self.transformer_encoder(features)
+        # outs = self.transformer_encoder(features)
+        outs = self.lstm(features)
         return outs
