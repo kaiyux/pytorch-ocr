@@ -1,14 +1,16 @@
 import os
 from PIL import Image
+from tqdm import tqdm
 
-image_dir = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT'
-gt_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT/gt.txt'
+image_dir = '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px'
+gt_path = '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt'
 
-patched_image_dir = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/patched'
-patched_gt_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/patched/gt.txt'
+patched_image_dir = '/home/stu7/workspace/ocr/dataset/all/Synth90k/patched'
+patched_gt_path = '/home/stu7/workspace/ocr/dataset/all/Synth90k/patched/gt.txt'
 
 tgt_width = 3200
 tgt_height = 64
+dataset_type = 'Synth90k'
 
 patched_width = 0
 image_idx = 0
@@ -16,16 +18,23 @@ tgt_image = Image.new('RGB', (tgt_width, tgt_height))
 transcripts = []
 cur_trans = []
 with open(gt_path, 'r', encoding='utf-8-sig')as f:
-    for line in f:
+    for line in tqdm(f):
         line = line.strip()
-        items = line.split(', ')
-        if len(items) != 2:
-            continue
-        image_name = items[0]
-        transcript = items[1][1:-1]
+        if dataset_type == '2015':
+            items = line.split(', ')
+            if len(items) != 2:
+                continue
+            image_name = items[0]
+            transcript = items[1][1:-1]
+        else:
+            image_name = line.split(' ')[0]
+            transcript = image_name.split('_')[1]
 
         image_path = os.path.join(image_dir, image_name)
-        img = Image.open(image_path).convert("RGB")
+        try:
+            img = Image.open(image_path).convert("RGB")
+        except:
+            continue
         width, height = img.size
         reshape_width = int(tgt_height * (width / height))
 

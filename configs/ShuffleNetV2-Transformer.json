@@ -13,11 +13,11 @@
   "data_loader": {
     "type": "OCRDataLoader",
     "args": {
-      "image_dir": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px",
-      "gt_path": "/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt",
+      "image_dir": "/home/stu7/workspace/ocr/dataset/all/Synth90k/patched",
+      "gt_path": "/home/stu7/workspace/ocr/dataset/all/Synth90k/patched/gt.txt",
       "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
-      "version": "Synth90k",
-      "batch_size": 16,
+      "version": "2015",
+      "batch_size": 32,
       "reshape_size": [
         224,
         64
@@ -30,7 +30,7 @@
   "optimizer": {
     "type": "SGD",
     "args": {
-      "lr": 0.4,
+      "lr": 0.5,
       "weight_decay": 0
     }
   },
@@ -39,13 +39,13 @@
   "lr_scheduler": {
     "type": "StepLR",
     "args": {
-      "step_size": 4,
+      "step_size": 1,
       "gamma": 0.5
     }
   },
   "trainer": {
     "epochs": 10,
-    "save_dir": "recog_model/",
+    "save_dir": "ShuffleNetV2-Transformer/",
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
