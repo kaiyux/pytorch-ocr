@@ -2,6 +2,9 @@ import argparse
 import torch
 import model.model as module_arch
 from parse_config import ConfigParser
+import os
+from tqdm import tqdm
+import json
 from utils.util import recognize
 
 
@@ -28,16 +31,31 @@ def prepare(args, resume):
 
 
 def main():
-    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT/word_1.png'
+    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/test_task2_images'
     resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/pretrained/checkpoint-epoch1.pth'
     label_dict = '/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt'
-
+    output = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/pretrained/submit.json'
     model, device = prepare(args, resume)
-    print(recognize(image_path, model, label_dict, device))
+
+    image_names = os.listdir(image_path)
+    preds = []
+    for img_name in tqdm(image_names):
+        pred = recognize(os.path.join(image_path, img_name), model, label_dict, device)
+        preds.append(pred)
+    icdar2019art(preds, image_names, output)
+
+
+def icdar2019art(preds, image_names, output):
+    results = {}
+    for i in range(len(preds)):
+        img_name = 'res_' + image_names[i].split('_')[1].split('.')[0]
+        results[img_name] = [{'transcription': preds[i]}]
+    with open(output, 'w')as f:
+        json.dump(results, f)
 
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='inference')
+    args = argparse.ArgumentParser(description='evaluate')
     args.add_argument('-c', '--config', default=None, type=str,
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,

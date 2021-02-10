@@ -3,6 +3,9 @@ import pandas as pd
 from pathlib import Path
 from itertools import repeat
 from collections import OrderedDict
+from torchvision import transforms
+from PIL import Image
+from data_loader.datasets import get_label_dict
 
 
 def ensure_dir(dirname):
@@ -27,6 +30,43 @@ def inf_loop(data_loader):
     ''' wrapper function for endless data loader. '''
     for loader in repeat(data_loader):
         yield from loader
+
+
+def recognize(image_path, model, label_dict, device):
+    img = Image.open(image_path).convert("RGB")
+    tgt_height = 64
+
+    width, height = img.size
+    reshape_width = tgt_height * (width / height)
+    img = img.resize([int(reshape_width), int(tgt_height)])
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+    ])
+    img = transform(img).unsqueeze(0).to(device)
+    output = model(img)
+
+    pred = output.argmax(dim=2).permute(1, 0).cpu().numpy().tolist()[0]
+
+    def decode(pred):
+        _, ind2ch = get_label_dict(label_dict)
+        output = []
+        prev_ch = -1
+        for ch in pred:
+            ch = ind2ch[ch]
+            if ch == 'UNK' or prev_ch == ch:
+                continue
+            elif prev_ch == -1:
+                prev_ch = ch
+            elif prev_ch != ch:
+                if prev_ch != 'BLANK':
+                    output.append(prev_ch)
+                prev_ch = ch
+
+        pred = ''.join(output)
+        return pred
+
+    return decode(pred)
 
 
 class MetricTracker:
