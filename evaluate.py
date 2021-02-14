@@ -31,10 +31,10 @@ def prepare(args, resume):
 
 
 def main():
-    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/test_task2_images'
+    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Test_Task3_Images'
     resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/pretrained/checkpoint-epoch1.pth'
     label_dict = '/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt'
-    output = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/pretrained/submit.json'
+    output = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/eval/script_test_ch2_t3_e1-1577983108/submit.txt'
     model, device = prepare(args, resume)
 
     image_names = os.listdir(image_path)
@@ -42,7 +42,15 @@ def main():
     for img_name in tqdm(image_names):
         pred = recognize(os.path.join(image_path, img_name), model, label_dict, device)
         preds.append(pred)
-    icdar2019art(preds, image_names, output)
+    icdar2013(preds, image_names, output)
+    # icdar2019art(preds, image_names, output)
+
+
+def icdar2013(preds, image_names, output):
+    with open(output, 'w')as f:
+        for i in range(len(preds)):
+            line = image_names[i] + ', "' + preds[i] + '"\n'
+            f.write(line)
 
 
 def icdar2019art(preds, image_names, output):
