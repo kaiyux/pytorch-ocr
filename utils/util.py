@@ -54,6 +54,8 @@ def recognize(image_path, model, label_dict, device):
         prev_ch = -1
         for ch in pred:
             ch = ind2ch[ch]
+            if ch == 'SPACE':
+                ch = ' '
             if ch == 'UNK' or prev_ch == ch:
                 continue
             elif prev_ch == -1:
