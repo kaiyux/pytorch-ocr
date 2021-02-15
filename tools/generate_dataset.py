@@ -9,11 +9,8 @@ class CustomDataset(object):
         self.gt_file = gt_file
         self.labels = {}
 
-    def crop(self, output_dir=None):
+    def crop(self):
         pass
-
-    def get_labels(self):
-        return self.labels
 
 
 class ICDAR2013(CustomDataset):
@@ -31,6 +28,24 @@ class ICDAR2013(CustomDataset):
                 self.labels[os.path.join(image_dir, image_name)] = transcript
 
 
+class ICDAR2017(CustomDataset):
+    def __init__(self, image_dir, gt_file):
+        super().__init__(image_dir, gt_file)
+        with open(gt_file, 'r', encoding='utf-8-sig')as f:
+            for line in tqdm(f):
+                line = line.strip()
+                items = line.split(',')
+                if len(items) != 3:
+                    continue
+                image_name = items[0]
+                text_type = items[1]
+                if text_type != 'Latin':
+                    continue
+                transcript = items[2]
+
+                self.labels[os.path.join(image_dir, image_name)] = transcript
+
+
 if __name__ == '__main__':
     icdar2013 = ICDAR2013(
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT',
@@ -38,7 +53,11 @@ if __name__ == '__main__':
     icdar2015 = ICDAR2013(
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2015WordRecognition/ch4_training_word_images_gt',
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2015WordRecognition/ch4_training_word_images_gt/gt.txt')
-    datasets = [icdar2013, icdar2015]
+    icdar2017 = ICDAR2017(
+        '/home/stu7/workspace/ocr/dataset/all/ICDAR2017MLTRec/train',
+        '/home/stu7/workspace/ocr/dataset/all/ICDAR2017MLTRec/train_gt/gt.txt'
+    )
+    datasets = [icdar2013, icdar2015, icdar2017]
 
     output_dir = '/home/stu7/workspace/ocr/dataset/recog/images'
     gt_file = '/home/stu7/workspace/ocr/dataset/recog/gt.txt'
@@ -59,3 +78,4 @@ if __name__ == '__main__':
                 f.write(line)
 
                 index += 1
+    print('Dataset generated. Including {} images.'.format(index))
