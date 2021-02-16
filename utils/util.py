@@ -71,6 +71,13 @@ def recognize(image_path, model, label_dict, device):
     return decode(pred)
 
 
+def contain_chinese(word):
+    for ch in word:
+        if '\u4e00' <= ch <= '\u9fff':
+            return True
+    return False
+
+
 class MetricTracker:
     def __init__(self, *keys, writer=None):
         self.writer = writer
