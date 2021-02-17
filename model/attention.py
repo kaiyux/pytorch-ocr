@@ -69,13 +69,15 @@ class TransformerEncoderModel(BaseModel):
         encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         self.linear = nn.Linear(in_features=d_model, out_features=num_chars)
-        self.log_softmax = nn.LogSoftmax(dim=2)
 
     def forward(self, src):
         src = self.pos_encoder(src)
         out = self.transformer_encoder(src)
         out = self.linear(out)  # (S, N, E) -> (S, N, C)
-        out = self.log_softmax(out)
+        if self.training:
+            out = nn.functional.log_softmax(out, dim=2)
+        else:
+            out = nn.functional.softmax(out, dim=2)
         return out
 
 

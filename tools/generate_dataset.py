@@ -91,6 +91,22 @@ class ICDAR2019(CustomDataset):
                     index += 1
 
 
+class Synth90k(CustomDataset):
+    def __init__(self, image_dir, gt_file, nums=None):
+        super().__init__(image_dir, gt_file)
+        index = 0
+        with open(gt_file, 'r')as f:
+            for line in tqdm(f):
+                if nums is not None and nums == index:
+                    break
+                line = line.strip()
+                image_name = line.split(' ')[0]
+                transcript = image_name.split('_')[1]
+
+                self.labels[os.path.join(image_dir, image_name)] = transcript
+                index += 1
+
+
 if __name__ == '__main__':
     icdar2013 = ICDAR2013(
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT',
@@ -109,7 +125,14 @@ if __name__ == '__main__':
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/train_images',
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/train_labels.json',
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/crop')
-    datasets = [icdar2013, icdar2015, icdar2017, icdar2019_lsvt, icdar2019_art]
+    cocotext = ICDAR2013(
+        '/home/stu7/workspace/ocr/dataset/all/cocotext-output/clean/images',
+        '/home/stu7/workspace/ocr/dataset/all/cocotext-output/clean/gt.txt')
+    synth90k = Synth90k(
+        '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px',
+        '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt',
+        nums=160000)
+    datasets = [icdar2013, icdar2015, icdar2017, icdar2019_lsvt, icdar2019_art, cocotext, synth90k]
     output_dir = '/home/stu7/workspace/ocr/dataset/recog/images'
     gt_file = '/home/stu7/workspace/ocr/dataset/recog/gt.txt'
     index = 0
