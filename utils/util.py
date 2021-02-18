@@ -6,6 +6,7 @@ from collections import OrderedDict
 from torchvision import transforms
 from PIL import Image
 from data_loader.datasets import get_label_dict
+from .prefix_beam_search import decode
 
 
 def ensure_dir(dirname):
@@ -46,29 +47,15 @@ def recognize(image_path, model, label_dict, device):
     img = transform(img).unsqueeze(0).to(device)
     output = model(img)
 
-    pred = output.argmax(dim=2).permute(1, 0).cpu().numpy().tolist()[0]
-
-    def decode(pred):
-        _, ind2ch = get_label_dict(label_dict)
-        output = []
-        prev_ch = -1
-        for ch in pred:
-            ch = ind2ch[ch]
-            if ch == 'SPACE':
-                ch = ' '
-            if ch == 'UNK' or prev_ch == ch:
-                continue
-            elif prev_ch == -1:
-                prev_ch = ch
-            elif prev_ch != ch:
-                if prev_ch != 'BLANK':
-                    output.append(prev_ch)
-                prev_ch = ch
-
-        pred = ''.join(output)
-        return pred
-
-    return decode(pred)
+    output = output.squeeze(1).cpu().detach().numpy()
+    _, ind2ch = get_label_dict(label_dict)
+    labels, score = decode(output, beam_size=20, blank=98)
+    pred = ''
+    for ch in labels:
+        ch = ind2ch[ch]
+        if ch not in ['UNK', 'SOS', 'EOS', 'SPACE', 'BLANK']:
+            pred += ch
+    return pred
 
 
 def contain_chinese(word):
