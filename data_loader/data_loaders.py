@@ -31,10 +31,9 @@ def icdar_collate_fn(batch):
     for i in range(len(batch)):
         if batch[i][0].shape[2] < max_width:
             pad_width = max_width - batch[i][0].shape[2]
-            batch[i] = (torch.nn.functional.pad(batch[i][0], (0, pad_width,), "constant", 0),
-                        batch[i][1], batch[i][2])
+            batch[i] = (torch.nn.functional.pad(batch[i][0], (0, pad_width,), "constant", 0), batch[i][1])
         while len(batch[i][1]) < max_len:
             batch[i][1].append(0)
-        batch[i] = (batch[i][0], torch.LongTensor(batch[i][1]), batch[i][2])
+        batch[i] = (batch[i][0], torch.LongTensor(batch[i][1]))
 
     return default_collate(batch)

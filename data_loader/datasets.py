@@ -79,7 +79,7 @@ class OCRDataset(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, label, torch.LongTensor([reshape_width])
+        return img, label
 
     def __len__(self):
         return len(self.labels)

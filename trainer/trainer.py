@@ -39,15 +39,12 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
         self.train_metrics.reset()
-        for batch_idx, (data, target, widths) in enumerate(self.data_loader):
+        for batch_idx, (data, target) in enumerate(self.data_loader):
             data = data.to(self.device)
 
             self.optimizer.zero_grad()
             output = self.model(data)
 
-            # input_lengths = (widths.squeeze(1) / 16 + 1).to(self.device)
-            # max_len = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
-            # input_lengths = torch.where(input_lengths > output.shape[0], max_len, input_lengths)
             input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
             targets = target.cpu().numpy().tolist()
             target = []
@@ -101,15 +98,12 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target, widths) in enumerate(self.valid_data_loader):
+            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data = data.to(self.device)
 
                 self.optimizer.zero_grad()
                 output = self.model(data)
 
-                # input_lengths = (widths.squeeze(1) / 16 + 1).to(self.device)
-                # max_len = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
-                # input_lengths = torch.where(input_lengths > output.shape[0], max_len, input_lengths)
                 input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
                 targets = target.cpu().numpy().tolist()
                 target = []
