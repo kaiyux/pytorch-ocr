@@ -31,26 +31,33 @@ def prepare(args, resume):
 
 
 def main():
-    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Test_Task3_Images'
-    resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/pretrained/checkpoint-epoch1.pth'
+    resume = '/home/stu7/workspace/ocr/pytorch-ocr/ShuffleNetV2-Transformer/models/OCR/0218_000316/checkpoint-epoch51.pth'
     label_dict = '/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt'
-    output = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/eval/script_test_ch2_t3_e1-1577983108/submit.txt'
     model, device = prepare(args, resume)
 
+    icdar2013_image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Test_Task3_Images'
+    icdar2013_output = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/eval/script_test_ch2_t3_e1-1577983108/submit.txt'
+    icdar2013(icdar2013_image_path, icdar2013_output, model, label_dict, device)
+
+    icdar2015_image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2015WordRecognition/ch4_test_word_images_gt'
+    icdar2015_output = '/home/stu7/workspace/ocr/dataset/all/ICDAR2015WordRecognition/script_test_ch4_t3_e1-1577983156/submit.txt'
+    icdar2013(icdar2015_image_path, icdar2015_output, model, label_dict, device)
+
+
+def icdar2013(image_path, output, model, label_dict, device):
     image_names = os.listdir(image_path)
+    image_names.sort(key=lambda x: int(x[5:-4]))
     preds = []
+    print('Inferencing...')
     for img_name in tqdm(image_names):
         pred = recognize(os.path.join(image_path, img_name), model, label_dict, device)
         preds.append(pred)
-    icdar2013(preds, image_names, output)
-    # icdar2019art(preds, image_names, output)
-
-
-def icdar2013(preds, image_names, output):
+    print('Writing to submit.txt ...')
     with open(output, 'w')as f:
         for i in range(len(preds)):
             line = image_names[i] + ', "' + preds[i] + '"\n'
             f.write(line)
+    print('Done')
 
 
 def icdar2019art(preds, image_names, output):
