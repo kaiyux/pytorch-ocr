@@ -140,7 +140,7 @@ class SynthText(CustomDataset):
             while '' in texts:
                 texts.remove('')
             coord = self.coords[i]
-            if len(coord.shape) == 3 and len(texts) != coord.shape[2]:
+            if len(coord.shape) != 3 or (len(coord.shape) == 3 and len(texts) != coord.shape[2]):
                 continue
             for j in range(len(coord[0][0])):
                 x1 = coord[0][0][j]
@@ -158,13 +158,15 @@ class SynthText(CustomDataset):
 
                 bbox = [xmin, ymin, xmax, ymax]
                 trans = texts[j]
-                print(str(index), trans)
 
-                text_region = img.crop(bbox)
-                region_path = os.path.join(self.crop_dir, 'img_' + str(index) + '.jpg')
-                text_region.save(region_path)
-                self.labels[region_path] = trans
-                index += 1
+                try:
+                    text_region = img.crop(bbox)
+                    region_path = os.path.join(self.crop_dir, 'img_' + str(index) + '.jpg')
+                    text_region.save(region_path)
+                    self.labels[region_path] = trans
+                    index += 1
+                except:
+                    continue
                 if self.nums is not None and self.nums == index:
                     return
             img.close()
@@ -201,8 +203,8 @@ if __name__ == '__main__':
         '/home/stu7/workspace/ocr/dataset/all/SynthText/crop',
         nums=160000)
     datasets = [icdar2013, icdar2015, icdar2017, icdar2019_lsvt, icdar2019_art, cocotext, synth90k, synth_text]
-    output_dir = '/home/stu7/workspace/ocr/dataset/recog/images'
-    gt_file = '/home/stu7/workspace/ocr/dataset/recog/gt.txt'
+    output_dir = '/home/stu7/workspace/ocr/dataset/recog480k/images'
+    gt_file = '/home/stu7/workspace/ocr/dataset/recog480k/gt.txt'
     index = 0
     with open(gt_file, 'w')as f:
         for dataset in datasets:
