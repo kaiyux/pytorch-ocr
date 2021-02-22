@@ -1,7 +1,9 @@
 from PIL import Image
 import json
 import os
+import re
 import shutil
+import scipy.io as sio
 from tqdm import tqdm
 from utils.util import contain_chinese
 
@@ -89,6 +91,7 @@ class ICDAR2019(CustomDataset):
                     text_region.save(region_path)
                     self.labels[region_path] = transcription
                     index += 1
+            img.close()
 
 
 class Synth90k(CustomDataset):
@@ -105,6 +108,66 @@ class Synth90k(CustomDataset):
 
                 self.labels[os.path.join(image_dir, image_name)] = transcript
                 index += 1
+
+
+class SynthText(CustomDataset):
+    def __init__(self, image_dir, gt_file, crop_dir, nums=None):
+        super().__init__(image_dir, gt_file)
+        self.crop_dir = crop_dir
+        self.nums = nums
+
+        self.synth_data = sio.loadmat(gt_file)
+        self.imnames = self.synth_data['imnames'][0]
+        self.coords = self.synth_data["wordBB"][0]
+        self.transcription = self.synth_data["txt"][0]
+
+        self.crop()
+
+    def crop(self):
+        index = 0
+        print('Crop image...')
+        for i in tqdm(range(len(self.imnames))):
+            image_name = self.imnames[i][0]
+            image_path = os.path.join(self.image_dir, image_name)
+            try:
+                img = Image.open(image_path)
+            except:
+                continue
+            raw_texts = self.transcription[i]
+            texts = []
+            for t in raw_texts:
+                texts.extend(re.split(r'[\s\n]', t.strip()))
+            while '' in texts:
+                texts.remove('')
+            coord = self.coords[i]
+            if len(coord.shape) == 3 and len(texts) != coord.shape[2]:
+                continue
+            for j in range(len(coord[0][0])):
+                x1 = coord[0][0][j]
+                y1 = coord[1][0][j]
+                x2 = coord[0][1][j]
+                y2 = coord[1][1][j]
+                x3 = coord[0][2][j]
+                y3 = coord[1][2][j]
+                x4 = coord[0][3][j]
+                y4 = coord[1][3][j]
+                xmin = min(x1, x2, x3, x4)
+                ymin = min(y1, y2, y3, y4)
+                xmax = max(x1, x2, x3, x4)
+                ymax = max(y1, y2, y3, y4)
+
+                bbox = [xmin, ymin, xmax, ymax]
+                trans = texts[j]
+                print(str(index), trans)
+
+                text_region = img.crop(bbox)
+                region_path = os.path.join(self.crop_dir, 'img_' + str(index) + '.jpg')
+                text_region.save(region_path)
+                self.labels[region_path] = trans
+                index += 1
+                if self.nums is not None and self.nums == index:
+                    return
+            img.close()
 
 
 if __name__ == '__main__':
@@ -132,7 +195,12 @@ if __name__ == '__main__':
         '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px',
         '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt',
         nums=160000)
-    datasets = [icdar2013, icdar2015, icdar2017, icdar2019_lsvt, icdar2019_art, cocotext, synth90k]
+    synth_text = SynthText(
+        '/home/stu7/workspace/ocr/dataset/all/SynthText/SynthText',
+        '/home/stu7/workspace/ocr/dataset/all/SynthText/SynthText/gt.mat',
+        '/home/stu7/workspace/ocr/dataset/all/SynthText/crop',
+        nums=160000)
+    datasets = [icdar2013, icdar2015, icdar2017, icdar2019_lsvt, icdar2019_art, cocotext, synth90k, synth_text]
     output_dir = '/home/stu7/workspace/ocr/dataset/recog/images'
     gt_file = '/home/stu7/workspace/ocr/dataset/recog/gt.txt'
     index = 0
