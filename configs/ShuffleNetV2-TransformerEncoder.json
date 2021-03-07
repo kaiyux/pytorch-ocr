@@ -9,7 +9,7 @@
       "nhead": 8,
       "num_layers": 6,
       "backbone": "ShuffleNet",
-      "head": "LSTM"
+      "head": "TransformerEncoder"
     }
   },
   "data_loader": {
@@ -19,7 +19,7 @@
       "gt_path": "/home/stu7/workspace/ocr/dataset/recog/gt.txt",
       "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
       "version": "2015",
-      "batch_size": 64,
+      "batch_size": 32,
       "reshape_size": [
         224,
         64
@@ -32,24 +32,16 @@
   "optimizer": {
     "type": "SGD",
     "args": {
-      "lr": 0.1,
+      "lr": 0.05,
       "weight_decay": 0
     }
   },
   "loss": "ctc_loss",
   "metrics": [],
   "lr_scheduler": {
-    "type": "MultiStepLR",
+    "type": "StepLR",
     "args": {
-      "milestones": [
-        20,
-        35,
-        50,
-        65,
-        80,
-        90,
-        100
-      ],
+      "step_size": 20,
       "gamma": 0.5
     }
   },

@@ -7,45 +7,55 @@
       "num_chars": 99,
       "d_model": 512,
       "nhead": 8,
-      "num_layers": 6
+      "num_layers": 6,
+      "backbone": "ResNet34",
+      "head": "TransformerEncoder"
     }
   },
   "data_loader": {
     "type": "OCRDataLoader",
     "args": {
-      "image_dir": "/home/stu7/workspace/ocr/dataset/all/Synth90k/patched",
-      "gt_path": "/home/stu7/workspace/ocr/dataset/all/Synth90k/patched/gt.txt",
+      "image_dir": "/home/stu7/workspace/ocr/dataset/recog480k/images",
+      "gt_path": "/home/stu7/workspace/ocr/dataset/recog480k/gt.txt",
       "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
       "version": "2015",
-      "batch_size": 32,
+      "batch_size": 16,
       "reshape_size": [
         224,
         64
       ],
       "shuffle": true,
-      "validation_split": 0.1,
+      "validation_split": 0.0,
       "num_workers": 4
     }
   },
   "optimizer": {
     "type": "SGD",
     "args": {
-      "lr": 0.5,
+      "lr": 0.02,
       "weight_decay": 0
     }
   },
   "loss": "ctc_loss",
   "metrics": [],
   "lr_scheduler": {
-    "type": "StepLR",
+    "type": "MultiStepLR",
     "args": {
-      "step_size": 1,
+      "milestones": [
+        20,
+        35,
+        50,
+        65,
+        80,
+        90,
+        100
+      ],
       "gamma": 0.5
     }
   },
   "trainer": {
-    "epochs": 10,
-    "save_dir": "ShuffleNetV2-Transformer/",
+    "epochs": 100,
+    "save_dir": "RecognizeModel/",
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
