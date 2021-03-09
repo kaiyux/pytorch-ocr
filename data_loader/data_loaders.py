@@ -18,31 +18,31 @@ class OCRDataLoader(BaseDataLoader):
 
 
 def icdar_collate_fn(batch):
-    # patch every `patch_num` images
-    patch_num = 8
-    batch_size = len(batch)
+    # # patch every `patch_num` images
+    # patch_num = 8
+    # batch_size = len(batch)
 
-    if batch_size > patch_num and batch_size % patch_num == 0:
-        batch = sorted(batch, key=lambda img_label_pair: img_label_pair[0].shape[2])
-
-        new_batch = []
-        i = 0
-        while i < int(batch_size / 2):
-            imgs = []
-            new_label = []
-            for j in range(patch_num // 2):
-                imgs.append(batch[i + j][0])
-                new_label.extend(batch[i + j][1])
-                imgs.append(batch[-(i + j) - 1][0])
-                new_label.extend(batch[-(i + j) - 1][1])
-            i += patch_num // 2
-            new_img = torch.cat(tuple(imgs), dim=2)
-            new_label.append(2)  # EOS
-            new_batch.append((new_img, new_label))
-        batch = new_batch
-    else:
-        for p in batch:
-            p[1].append(2)  # EOS
+    # if batch_size > patch_num and batch_size % patch_num == 0:
+    #     batch = sorted(batch, key=lambda img_label_pair: img_label_pair[0].shape[2])
+    #
+    #     new_batch = []
+    #     i = 0
+    #     while i < int(batch_size / 2):
+    #         imgs = []
+    #         new_label = []
+    #         for j in range(patch_num // 2):
+    #             imgs.append(batch[i + j][0])
+    #             new_label.extend(batch[i + j][1])
+    #             imgs.append(batch[-(i + j) - 1][0])
+    #             new_label.extend(batch[-(i + j) - 1][1])
+    #         i += patch_num // 2
+    #         new_img = torch.cat(tuple(imgs), dim=2)
+    #         new_label.append(2)  # EOS
+    #         new_batch.append((new_img, new_label))
+    #     batch = new_batch
+    # else:
+    #     for p in batch:
+    #         p[1].append(2)  # EOS
 
     max_width = 0
     max_len = 0

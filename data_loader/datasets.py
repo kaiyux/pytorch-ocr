@@ -36,7 +36,7 @@ class OCRDataset(Dataset):
                             encoded_trans.append(ch2ind['UNK'])
                         else:
                             encoded_trans.append(ch2ind[ch])
-                    # encoded_trans.append(ch2ind['EOS'])
+                    encoded_trans.append(ch2ind['EOS'])
 
                     self.labels[image_name] = encoded_trans
 
@@ -57,7 +57,7 @@ class OCRDataset(Dataset):
                             encoded_trans.append(ch2ind['UNK'])
                         else:
                             encoded_trans.append(ch2ind[ch])
-                    # encoded_trans.append(ch2ind['EOS'])
+                    encoded_trans.append(ch2ind['EOS'])
 
                     self.labels[image_name] = encoded_trans
 
