@@ -6,7 +6,8 @@ from collections import OrderedDict
 from torchvision import transforms
 from PIL import Image
 from data_loader.datasets import get_label_dict
-from .prefix_beam_search import decode
+# from .prefix_beam_search import decode
+import ctcdecoder  # https://github.com/SiriusKY/CTC-decoder
 import torch
 
 
@@ -51,7 +52,7 @@ def recognize(image_path, model, label_dict, device):
 
     output = output.squeeze(1).cpu().numpy()
     _, ind2ch = get_label_dict(label_dict)
-    labels, score = decode(output, beam_size=20, blank=98)
+    labels, score = ctcdecoder.decode(output, 20, 98)
     pred = ''
     for ch in labels:
         ch = ind2ch[ch]

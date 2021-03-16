@@ -74,10 +74,7 @@ class TransformerEncoderModel(BaseModel):
         src = self.pos_encoder(src)
         out = self.transformer_encoder(src)
         out = self.linear(out)  # (S, N, E) -> (S, N, C)
-        if self.training:
-            out = nn.functional.log_softmax(out, dim=2)
-        else:
-            out = nn.functional.softmax(out, dim=2)
+        out = nn.functional.log_softmax(out, dim=2)
         return out
 
 

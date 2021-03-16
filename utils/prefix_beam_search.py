@@ -46,7 +46,7 @@ def decode(probs, beam_size=10, blank=0):
     log-likelihood estimated by the decoder.
     """
     T, S = probs.shape
-    probs = np.log(probs)
+    # probs = np.log(probs)
 
     # Elements in the beam are (prefix, (p_blank, p_no_blank))
     # Initialize the beam with the empty sequence, a probability of
