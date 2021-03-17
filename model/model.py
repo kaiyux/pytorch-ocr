@@ -1,8 +1,7 @@
 import torch
 from base import BaseModel
-from .attention import TransformerModel, TransformerEncoderModel, TransformerDecoderModel
-from .lstm import LSTMModel
 from .backbone import ShuffleNetV2, TinyNet, resnet18, resnet34, resnet50
+from .head import TransformerModel, TransformerEncoderModel, TransformerDecoderModel, LSTMModel
 
 arch_backbones = {
     'ShuffleNet': ShuffleNetV2,
