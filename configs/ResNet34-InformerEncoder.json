@@ -1,0 +1,65 @@
+{
+  "name": "OCR",
+  "n_gpu": 1,
+  "arch": {
+    "type": "RecognizeModel",
+    "args": {
+      "num_chars": 99,
+      "d_model": 512,
+      "nhead": 8,
+      "num_layers": 3,
+      "backbone": "ResNet34",
+      "head": "InformerEncoder"
+    }
+  },
+  "data_loader": {
+    "type": "OCRDataLoader",
+    "args": {
+      "image_dir": "/home/stu7/workspace/ocr/dataset/recog480k/images",
+      "gt_path": "/home/stu7/workspace/ocr/dataset/recog480k/gt.txt",
+      "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
+      "version": "2015",
+      "batch_size": 32,
+      "reshape_size": [
+        224,
+        64
+      ],
+      "shuffle": true,
+      "validation_split": 0.0,
+      "num_workers": 4
+    }
+  },
+  "optimizer": {
+    "type": "SGD",
+    "args": {
+      "lr": 0.1,
+      "weight_decay": 0
+    }
+  },
+  "loss": "ctc_loss",
+  "metrics": [],
+  "lr_scheduler": {
+    "type": "MultiStepLR",
+    "args": {
+      "milestones": [
+        20,
+        35,
+        50,
+        65,
+        80,
+        90,
+        100
+      ],
+      "gamma": 0.5
+    }
+  },
+  "trainer": {
+    "epochs": 100,
+    "save_dir": "RecognizeModel/",
+    "save_period": 1,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 100,
+    "tensorboard": true
+  }
+}
