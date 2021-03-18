@@ -7,7 +7,8 @@ from torchvision import transforms
 from PIL import Image
 from data_loader.datasets import get_label_dict
 # from .prefix_beam_search import decode
-import ctcdecoder  # https://github.com/SiriusKY/CTC-decoder
+# import ctcdecoder  # https://github.com/SiriusKY/CTC-decoder
+from ctcdecode import CTCBeamDecoder  # https://github.com/parlance/ctcdecode
 import torch
 
 
@@ -50,13 +51,42 @@ def recognize(image_path, model, label_dict, device):
     with torch.no_grad():
         output = model(img)
 
-    output = output.squeeze(1).cpu().numpy()
     _, ind2ch = get_label_dict(label_dict)
-    labels, score = ctcdecoder.decode(output, 20, 98)
+
+    # output = output.squeeze(1).cpu().numpy()
+    # results, score = ctcdecoder.decode(output, 20, 98)
+
+    labels = list(ind2ch.values())
+    replace_label = {
+        'UNK': '_', 'SOS': '_', 'EOS': '_', 'SPACE': ' ', 'BLANK': '_'
+    }
+    labels = ''.join([replace_label[l] if l in replace_label.keys() else l for l in labels])
+    decoder = CTCBeamDecoder(
+        labels,
+        model_path=None,
+        alpha=0,
+        beta=0,
+        cutoff_top_n=40,
+        cutoff_prob=1.0,
+        beam_width=20,
+        num_processes=8,
+        blank_id=98,
+        log_probs_input=True
+    )
+    output = output.permute(1, 0, 2)
+    beam_results, beam_scores, timesteps, out_lens = decoder.decode(output)
+    results = beam_results[0][0][:out_lens[0][0]].cpu().tolist()
+    # print(results)
+    # print(1/torch.exp(beam_scores))
+
     pred = ''
-    for ch in labels:
+    for ch in results:
         ch = ind2ch[ch]
-        if ch not in ['UNK', 'SOS', 'EOS', 'SPACE', 'BLANK']:
+        if ch in ['UNK', 'SOS', 'EOS', 'BLANK']:
+            continue
+        elif ch == 'SPACE':
+            pred += ' '
+        else:
             pred += ch
     return pred
 
