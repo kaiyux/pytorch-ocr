@@ -94,6 +94,21 @@ class ICDAR2019(CustomDataset):
             img.close()
 
 
+class COCOText(CustomDataset):
+    def __init__(self, image_dir, gt_file):
+        super().__init__(image_dir, gt_file)
+        with open(gt_file, 'r', encoding='utf-8')as f:
+            for line in tqdm(f):
+                line = line.strip()
+                items = line.split(',')
+                if len(items) != 2:
+                    continue
+                image_name = items[0] + '.jpg'
+                transcript = items[1]
+
+                self.labels[os.path.join(image_dir, image_name)] = transcript
+
+
 class Synth90k(CustomDataset):
     def __init__(self, image_dir, gt_file, nums=None):
         super().__init__(image_dir, gt_file)
@@ -190,9 +205,9 @@ if __name__ == '__main__':
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/train_images',
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/train_labels.json',
         '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/crop')
-    cocotext = ICDAR2013(
-        '/home/stu7/workspace/ocr/dataset/all/cocotext-output/clean/images',
-        '/home/stu7/workspace/ocr/dataset/all/cocotext-output/clean/gt.txt')
+    cocotext = COCOText(
+        '/home/stu7/workspace/ocr/dataset/all/COCO-Text-words-trainval/train_words',
+        '/home/stu7/workspace/ocr/dataset/all/COCO-Text-words-trainval/train_words_gt.txt')
     synth90k = Synth90k(
         '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px',
         '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt',
@@ -203,8 +218,8 @@ if __name__ == '__main__':
         '/home/stu7/workspace/ocr/dataset/all/SynthText/crop',
         nums=160000)
     datasets = [icdar2013, icdar2015, icdar2017, icdar2019_lsvt, icdar2019_art, cocotext, synth90k, synth_text]
-    output_dir = '/home/stu7/workspace/ocr/dataset/recog480k/images'
-    gt_file = '/home/stu7/workspace/ocr/dataset/recog480k/gt.txt'
+    output_dir = '/home/stu7/workspace/ocr/dataset/recog500k/images'
+    gt_file = '/home/stu7/workspace/ocr/dataset/recog500k/gt.txt'
     index = 0
     with open(gt_file, 'w')as f:
         for dataset in datasets:
