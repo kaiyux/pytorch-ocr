@@ -121,7 +121,18 @@ class Synth90k(CustomDataset):
                 image_name = line.split(' ')[0]
                 transcript = image_name.split('_')[1]
 
-                self.labels[os.path.join(image_dir, image_name)] = transcript
+                image_path = os.path.join(image_dir, image_name)
+                try:
+                    img = Image.open(image_path)
+                    w = img.size[0]
+                    h = img.size[1]
+                    if w < h or w * h < 100 or w * h > 1000000:
+                        continue
+                    img.close()
+                except:
+                    continue
+
+                self.labels[image_path] = transcript
                 index += 1
 
 
@@ -146,6 +157,11 @@ class SynthText(CustomDataset):
             image_path = os.path.join(self.image_dir, image_name)
             try:
                 img = Image.open(image_path)
+                w = img.size[0]
+                h = img.size[1]
+                if w < h or w * h < 100 or w * h > 1000000:
+                    img.close()
+                    continue
             except:
                 continue
             raw_texts = self.transcription[i]
@@ -189,37 +205,37 @@ class SynthText(CustomDataset):
 
 if __name__ == '__main__':
     icdar2013 = ICDAR2013(
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT',
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT/gt.txt')
+        '/home/xiekaiyu/ocr/dataset/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT',
+        '/home/xiekaiyu/ocr/dataset/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT/gt.txt')
     icdar2015 = ICDAR2013(
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2015WordRecognition/ch4_training_word_images_gt',
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2015WordRecognition/ch4_training_word_images_gt/gt.txt')
+        '/home/xiekaiyu/ocr/dataset/ICDAR2015WordRecognition/ch4_training_word_images_gt',
+        '/home/xiekaiyu/ocr/dataset/ICDAR2015WordRecognition/ch4_training_word_images_gt/gt.txt')
     icdar2017 = ICDAR2017(
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2017MLTRec/train',
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2017MLTRec/train_gt/gt.txt')
+        '/home/xiekaiyu/ocr/dataset/ICDAR2017MLTRec/train',
+        '/home/xiekaiyu/ocr/dataset/ICDAR2017MLTRec/train_gt/gt.txt')
     icdar2019_lsvt = ICDAR2019(
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2019LSVT/train_full_images',
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2019LSVT/train_full_labels.json',
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2019LSVT/crop')
+        '/home/xiekaiyu/ocr/dataset/ICDAR2019LSVT/train_full_images',
+        '/home/xiekaiyu/ocr/dataset/ICDAR2019LSVT/train_full_labels.json',
+        '/home/xiekaiyu/ocr/dataset/ICDAR2019LSVT/crop')
     icdar2019_art = ICDAR2019(
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/train_images',
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/train_labels.json',
-        '/home/stu7/workspace/ocr/dataset/all/ICDAR2019ArT/crop')
+        '/home/xiekaiyu/ocr/dataset/ICDAR2019ArT/train_images',
+        '/home/xiekaiyu/ocr/dataset/ICDAR2019ArT/train_labels.json',
+        '/home/xiekaiyu/ocr/dataset/ICDAR2019ArT/crop')
     cocotext = COCOText(
-        '/home/stu7/workspace/ocr/dataset/all/COCO-Text-words-trainval/train_words',
-        '/home/stu7/workspace/ocr/dataset/all/COCO-Text-words-trainval/train_words_gt.txt')
+        '/home/xiekaiyu/ocr/dataset/COCO-Text-words-trainval/train_words',
+        '/home/xiekaiyu/ocr/dataset/COCO-Text-words-trainval/train_words_gt.txt')
     synth90k = Synth90k(
-        '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px',
-        '/home/stu7/workspace/ocr/dataset/all/Synth90k/90kDICT32px/annotation_train_clean.txt',
+        '/home/xiekaiyu/ocr/dataset/Synth90k/90kDICT32px',
+        '/home/xiekaiyu/ocr/dataset/Synth90k/90kDICT32px/annotation_train.txt',
         nums=160000)
     synth_text = SynthText(
-        '/home/stu7/workspace/ocr/dataset/all/SynthText/SynthText',
-        '/home/stu7/workspace/ocr/dataset/all/SynthText/SynthText/gt.mat',
-        '/home/stu7/workspace/ocr/dataset/all/SynthText/crop',
+        '/home/xiekaiyu/ocr/dataset/SynthText/SynthText',
+        '/home/xiekaiyu/ocr/dataset/SynthText/SynthText/gt.mat',
+        '/home/xiekaiyu/ocr/dataset/SynthText/crop',
         nums=160000)
     datasets = [icdar2013, icdar2015, icdar2017, icdar2019_lsvt, icdar2019_art, cocotext, synth90k, synth_text]
-    output_dir = '/home/stu7/workspace/ocr/dataset/recog500k/images'
-    gt_file = '/home/stu7/workspace/ocr/dataset/recog500k/gt.txt'
+    output_dir = '/home/xiekaiyu/workspace/pytorch-ocr/data/images'
+    gt_file = '/home/xiekaiyu/workspace/pytorch-ocr/data/gt.txt'
     index = 0
     with open(gt_file, 'w')as f:
         for dataset in datasets:
