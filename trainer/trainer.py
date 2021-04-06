@@ -76,9 +76,6 @@ class Trainer(BaseTrainer):
                     self.optimizer.state_dict()['param_groups'][0]['lr']))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
-            del output, target, input_lengths, target_lengths, loss
-            torch.cuda.empty_cache()
-
             if batch_idx == self.len_epoch:
                 break
         log = self.train_metrics.result()

@@ -49,6 +49,4 @@ class RecognizeModel(BaseModel):
             outs = self.head(features, transcription)
         else:
             outs = self.head(features)
-
-        del features
         return outs
