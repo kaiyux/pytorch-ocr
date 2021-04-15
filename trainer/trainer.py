@@ -46,15 +46,14 @@ class Trainer(BaseTrainer):
             output = self.model(data)
 
             input_lengths = torch.full((output.shape[1],), output.shape[0], dtype=torch.long).to(self.device)
-            targets = target.cpu().numpy().tolist()
-            target = []
+            cur_len = 0
             target_lengths = []
-            for seq in targets:
-                for i, ch in enumerate(seq):
-                    target.append(ch)
-                    if ch == 2:  # EOS
-                        target_lengths.append(i + 1)
-                        break
+            for ch in target:
+                if ch == 2:  # EOS
+                    target_lengths.append(cur_len + 1)
+                    cur_len = 0
+                else:
+                    cur_len += 1
             target = torch.LongTensor(target).to(self.device)
             target_lengths = torch.LongTensor(target_lengths).to(self.device)
             loss = self.criterion(output, target, input_lengths, target_lengths,

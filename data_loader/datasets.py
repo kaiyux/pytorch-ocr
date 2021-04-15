@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import Dataset
+from torchvision import transforms
 import os
 from PIL import Image, ImageFile
 from tqdm import tqdm
@@ -8,7 +9,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class OCRDataset(Dataset):
-    def __init__(self, image_dir, gt_path, label_dict, reshape_size, version='2015', transform=None):
+    def __init__(self, image_dir, gt_path, label_dict, reshape_size, version='2015'):
         assert os.path.isdir(image_dir), f'dir \'{image_dir}\' not found!'
         self.image_dir = image_dir
 
@@ -61,23 +62,35 @@ class OCRDataset(Dataset):
 
                     self.labels[image_name] = encoded_trans
 
-        self.transform = transform
+        self.label_values = list(self.labels.values())
+        self.images = list(self.labels.keys())
+
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+        ])
         self.tgt_width = reshape_size[0]
         self.tgt_height = reshape_size[1]
 
     def __getitem__(self, index):
-        label = list(self.labels.values())[index]
-        image_name = list(self.labels.keys())[index]
+        label = self.label_values[index]
+        image_name = self.images[index]
 
         # process image
         image_path = os.path.join(self.image_dir, image_name)
-        img = Image.open(image_path)
-        img = img.convert("RGB")
+        img = Image.open(image_path).convert("RGB")
         width, height = img.size
-        reshape_width = self.tgt_height * (width / height)
-        img = img.resize([int(reshape_width), int(self.tgt_height)])
-        if self.transform is not None:
-            img = self.transform(img)
+        reshape_width = int(self.tgt_height * (width / height))
+        if reshape_width >= self.tgt_width:
+            resize = transforms.Resize([self.tgt_height, self.tgt_width])
+            img = resize(img)
+        else:
+            resize = transforms.Resize([self.tgt_height, reshape_width])
+            img = resize(img)
+            pad_width = self.tgt_width - reshape_width
+            pad = transforms.Pad(padding=(0, 0, int(pad_width), 0))
+            img = pad(img)
+        img = self.transform(img)
 
         return img, label
 
