@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 import os
+import io
 from PIL import Image, ImageFile
 from tqdm import tqdm
 
@@ -96,6 +97,63 @@ class OCRDataset(Dataset):
 
     def __len__(self):
         return len(self.labels)
+
+
+class LMDBDataset(Dataset):
+    def __init__(self, lmdb_dir, gt_path, label_dict, reshape_size, version='2015'):
+        import lmdb
+        assert os.path.isdir(lmdb_dir), f'dir \'{lmdb_dir}\' not found!'
+        self.lmdb_dir = lmdb_dir
+
+        assert os.path.isfile(gt_path), f'file \'{gt_path}\' not found!'
+
+        ch2ind, _ = get_label_dict(label_dict)
+
+        self.labels = {}
+        if version == '2015':
+            with open(gt_path, 'r', encoding='utf-8-sig')as f:
+                for line in f:
+                    line = line.strip()
+                    items = line.split(', ')
+                    if len(items) != 2:
+                        continue
+                    image_name = items[0]
+                    transcript = items[1][1:-1]
+
+                    # encoded_trans = [ch2ind['SOS']]
+                    encoded_trans = []
+                    for ch in transcript:
+                        if ch == ' ':
+                            encoded_trans.append(ch2ind['SPACE'])
+                        elif ch not in ch2ind.keys():
+                            encoded_trans.append(ch2ind['UNK'])
+                        else:
+                            encoded_trans.append(ch2ind[ch])
+                    encoded_trans.append(ch2ind['EOS'])
+
+                    self.labels[image_name] = encoded_trans
+
+        self.label_values = list(self.labels.values())
+        self.images = list(self.labels.keys())
+
+        self.env = lmdb.Environment(self.lmdb_dir)
+        self.txn = self.env.begin()
+
+    def __getitem__(self, index):
+        label = self.label_values[index]
+        image_name = self.images[index]
+        buff = io.BytesIO()
+        buff.write(self.txn.get(image_name.encode()))
+        buff.seek(0)
+        image_tensor = torch.load(buff)
+        del buff
+        return image_tensor, label
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __del__(self):
+        self.env.close()
 
 
 def get_label_dict(label_dict):
