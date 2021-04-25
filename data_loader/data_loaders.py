@@ -1,4 +1,3 @@
-from torch.utils.data.dataloader import default_collate
 from base import BaseDataLoader
 from .datasets import *
 
