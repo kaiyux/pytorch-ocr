@@ -1,18 +1,21 @@
 from model.model import RecognizeModel
 from benchmarks.models import NRTR
 import torch
+import numpy as np
 from time import time
 
 
 def forward_time_benchmark(models, device='gpu'):
     trials = 100
-    batch_size = 1
+    batch_size = 4
 
     for name in models.keys():
+        print(f'{name}')
         time_cost = 0
+        model = models[name]
         for i in range(trials):
             img = torch.rand(size=(batch_size, 3, 64, 320), dtype=torch.float)
-            model = models[name]
+
             if device == 'gpu':
                 model = model.to('cuda')
                 img = img.to('cuda')
@@ -23,10 +26,14 @@ def forward_time_benchmark(models, device='gpu'):
             tok = time()
 
             time_cost += (tok - tik)
-            del model
+
+        model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+        params = sum([np.prod(p.size()) for p in model_parameters])
 
         avg_time = time_cost / trials
-        print(f'{name} forward time: {avg_time * 1000:.2f}ms per batch. (batch_size={batch_size})')
+        print(f'Forward time: {avg_time * 1000:.2f}ms per batch. (batch_size={batch_size})')
+        print(f'Trainable parameters: {params}\n')
+        del model
 
 
 def main():
