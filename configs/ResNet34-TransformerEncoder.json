@@ -15,24 +15,24 @@
   "data_loader": {
     "type": "OCRDataLoader",
     "args": {
-      "image_dir": "/home/stu7/workspace/ocr/dataset/recog480k/images",
-      "gt_path": "/home/stu7/workspace/ocr/dataset/recog480k/gt.txt",
-      "label_dict": "/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt",
+      "image_dir": "/home/xiekaiyu/workspace/pytorch-ocr/synth_data/images",
+      "gt_path": "/home/xiekaiyu/workspace/pytorch-ocr/synth_data/gt.txt",
+      "label_dict": "/home/xiekaiyu/workspace/pytorch-ocr/label_dicts/label_dict_en.txt",
       "version": "2015",
-      "batch_size": 16,
+      "batch_size": 512,
       "reshape_size": [
-        224,
+        320,
         64
       ],
       "shuffle": true,
       "validation_split": 0.0,
-      "num_workers": 4
+      "num_workers": 8
     }
   },
   "optimizer": {
     "type": "SGD",
     "args": {
-      "lr": 0.02,
+      "lr": 0.1,
       "weight_decay": 0
     }
   },
@@ -42,19 +42,14 @@
     "type": "MultiStepLR",
     "args": {
       "milestones": [
-        20,
-        35,
-        50,
-        65,
-        80,
-        90,
-        100
+        4,
+        5
       ],
-      "gamma": 0.5
+      "gamma": 0.1
     }
   },
   "trainer": {
-    "epochs": 100,
+    "epochs": 6,
     "save_dir": "RecognizeModel/",
     "save_period": 1,
     "verbosity": 2,

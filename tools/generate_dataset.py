@@ -237,7 +237,7 @@ if __name__ == '__main__':
     output_dir = '/home/xiekaiyu/workspace/pytorch-ocr/data/images'
     gt_file = '/home/xiekaiyu/workspace/pytorch-ocr/data/gt.txt'
     index = 0
-    with open(gt_file, 'w')as f:
+    with open(gt_file, 'w', encoding='utf-8')as f:
         for dataset in datasets:
             labels = dataset.labels
             for img_path in tqdm(labels.keys()):

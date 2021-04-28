@@ -28,9 +28,9 @@ def prepare(args, resume):
 
 
 def main():
-    image_path = '/home/stu7/workspace/ocr/dataset/all/ICDAR2013WordRecognition/Challenge2_Training_Task3_Images_GT/word_1.png'
-    resume = '/home/stu7/workspace/ocr/pytorch-ocr/recog_model/models/OCR/pretrained/checkpoint-epoch1.pth'
-    label_dict = '/home/stu7/workspace/ocr/pytorch-ocr/label_dicts/label_dict_en.txt'
+    image_path = '/home/xiekaiyu/workspace/pytorch-ocr/data/images/img_6.jpg'
+    resume = '/home/xiekaiyu/workspace/pytorch-ocr/RecognizeModel/models/OCR/0331_033837/checkpoint-epoch40.pth'
+    label_dict = '/home/xiekaiyu/workspace/pytorch-ocr/label_dicts/label_dict_en.txt'
 
     model, device = prepare(args, resume)
     print(recognize(image_path, model, label_dict, device))
