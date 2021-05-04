@@ -39,10 +39,19 @@ def forward_time_benchmark(models, device='gpu'):
 def main():
     model = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
                            backbone='ResNet34', head='TransformerEncoder')
+    resnet18_transformer_encoder = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
+                                                  backbone='ResNet18', head='TransformerEncoder')
+    shufflenet_transformer_encoder = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
+                                                    backbone='ShuffleNet', head='TransformerEncoder')
+    resnet34_lstm = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
+                                   backbone='ResNet34', head='LSTM')
     nrtr = NRTR()
 
     models = {
         'ResNet34-TransformerEncoder': model,
+        'ResNet18-TransformerEncoder': resnet18_transformer_encoder,
+        'ShuffleNet-TransformerEncoder': shufflenet_transformer_encoder,
+        'ResNet34-LSTM': resnet34_lstm,
         'NRTR': nrtr
     }
 
