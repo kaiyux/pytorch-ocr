@@ -39,19 +39,53 @@ def forward_time_benchmark(models, device='gpu'):
 def main():
     model = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
                            backbone='ResNet34', head='TransformerEncoder')
-    resnet18_transformer_encoder = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
-                                                  backbone='ResNet18', head='TransformerEncoder')
+
+    # ablation study
+    # 1. nhead & nlayers
+    nhead1_nlayer1_model = RecognizeModel(num_chars=99, d_model=512, nhead=1, num_layers=1,
+                                          backbone='ResNet34', head='TransformerEncoder')
+    nhead4_nlayer1_model = RecognizeModel(num_chars=99, d_model=512, nhead=4, num_layers=1,
+                                          backbone='ResNet34', head='TransformerEncoder')
+    nhead8_nlayer1_model = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=1,
+                                          backbone='ResNet34', head='TransformerEncoder')
+    nhead16_nlayer1_model = RecognizeModel(num_chars=99, d_model=512, nhead=16, num_layers=1,
+                                           backbone='ResNet34', head='TransformerEncoder')
+    nhead8_nlayer2_model = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=2,
+                                          backbone='ResNet34', head='TransformerEncoder')
+
+    # 2. backbone
     shufflenet_transformer_encoder = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
                                                     backbone='ShuffleNet', head='TransformerEncoder')
+    resnet18_transformer_encoder = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
+                                                  backbone='ResNet18', head='TransformerEncoder')
+    resnet50_transformer_encoder = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
+                                                  backbone='ResNet50', head='TransformerEncoder')
+
+    # 3. head
+    resnet34_transformer_decoder = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
+                                                  backbone='ResNet34', head='TransformerDecoder')
     resnet34_lstm = RecognizeModel(num_chars=99, d_model=512, nhead=8, num_layers=6,
                                    backbone='ResNet34', head='LSTM')
+
+    # 4. SOTA
     nrtr = NRTR()
 
     models = {
         'ResNet34-TransformerEncoder': model,
+
+        'nhead1_nlayer1_model': nhead1_nlayer1_model,
+        'nhead1_nlayer4_model': nhead4_nlayer1_model,
+        'nhead1_nlayer8_model': nhead8_nlayer1_model,
+        'nhead1_nlayer16_model': nhead16_nlayer1_model,
+        'nhead8_nlayer2_model': nhead8_nlayer2_model,
+
         'ResNet18-TransformerEncoder': resnet18_transformer_encoder,
+        'ResNet50-TransformerEncoder': resnet50_transformer_encoder,
         'ShuffleNet-TransformerEncoder': shufflenet_transformer_encoder,
+
+        'ResNet34-TransformerDecoder': resnet34_transformer_decoder,
         'ResNet34-LSTM': resnet34_lstm,
+
         'NRTR': nrtr
     }
 
